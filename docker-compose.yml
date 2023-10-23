@@ -1,0 +1,64 @@
+version: '3.9'
+
+networks:
+  currency-dev-bridge:
+    driver: bridge
+
+services:
+  currency_app:
+    image: ${DOCKER_REGISTRY-}currency
+    build:
+      context: .
+      dockerfile: Currency/Dockerfile
+    links:
+      - db_currency_rates_cnt
+    environment:
+      NODE_ENV: envvar 
+    ports:
+      - 8080:8080
+    networks:
+      - currency-dev-bridge
+    depends_on:
+      - db_currency_rates_cnt
+
+  db_currency_rates_cnt:
+    container_name: db_currency_rates_cnt
+    image: postgres:16.0-alpine
+    restart: always    
+    secrets:
+      - db-password
+    environment:
+         POSTGRES_PASSWORD: /run/secrets/db-password
+         POSTGRES_USER: "currency_user"
+         POSTGRES_DB: "currency_rates_db"
+         PGDATA: "/var/lib/postgresql/data/pgdata"
+         POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"         
+    volumes:
+      - postgres-currency-data:/var/lib/postgresql/data
+      - /usr/src/app/node_modules
+    ports:
+      - 5432:5432
+    networks:
+      - currency-dev-bridge
+    healthcheck:
+      test: [ "CMD", "pg_isready ", "-U", "currency_user", "-d", "currency_rates_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment: 
+      PGADMIN_DEFAULT_EMAIL: PyxisScientia@yandex.ru
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+    
+volumes:
+  postgres-currency-data:
+
+secrets:
+  db-password:
+    file: db/psswrd.txt
+  
