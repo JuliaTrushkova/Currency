@@ -15,5 +15,13 @@ namespace Currency.UserClasses
             
             return Regex.IsMatch(value, pattern);
         }
+
+        public static bool IsCorrectXML(this string value)
+        {
+            string no_data = "Error in parameters";
+            string valute = "Valute";
+            
+            return (!(value.Contains(no_data)) && (value.Contains(valute)));
+        }
     }
 }

@@ -105,6 +105,10 @@ namespace Currency.UserClasses
 
                 using (TextReader reader = new StreamReader(path))
                 {
+                    string s = reader.ReadToEnd();
+                    if (!s.IsCorrectXML())
+                        throw new CurrencyException($"XML has no data.");
+
                     XmlSerializer xmlSerializerCodeInfo = new XmlSerializer(typeof(ValCurs));
                     valCurs = (ValCurs?)xmlSerializerCodeInfo.Deserialize(reader);
                 }
@@ -128,6 +132,8 @@ namespace Currency.UserClasses
                 throw new CurrencyException($"Date format of {nameof(dateOfRequest)} = {dateOfRequest} is invalid");
             if (valCurs is null)
                 throw new CurrencyException("The instance ValCurs is null after parsing of the XML");
+            if (valCurs.Valutes is null)
+                throw new CurrencyException("The instance Valutes is null after parsing of the XML");
 
             CurrencyRateRequest currencyRate = new CurrencyRateRequest
             {
