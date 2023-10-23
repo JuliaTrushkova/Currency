@@ -16,8 +16,7 @@ namespace Currency
 
             //Заполняет таблицу котировок значениями за текущий день
             try
-            {
-                CurrentyRatesService.AddingNewCurrencyRate("01/01/1991");
+            {               
                 CurrentyRatesService.AddingTodayCurrencyRate();                
             }
             catch (CurrencyException ex)
